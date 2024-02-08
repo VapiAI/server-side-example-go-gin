@@ -1,14 +1,15 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"go_gin_app/api"
+)
 
 func main() {
 	r := gin.Default()
-	r.POST("/api/inbound", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Inbound API Endpoint - to be implemented",
-		})
-	})
+	
+	r.POST("/api/inbound", api.InboundHandler)
+
 	r.POST("/api/outbound", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Outbound API Endpoint - to be implemented",
