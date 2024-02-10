@@ -10,8 +10,7 @@ import (
 func InboundHandler(c *gin.Context) {
 	var reqBody struct {
 		Message struct {
-			Type string            `json:"type"`
-			Data types.VapiPayload `json:"data"`
+			Type types.VapiWebhookEnum `json:"type"`
 		} `json:"message"`
 	}
 	if err := c.BindJSON(&reqBody); err != nil {
@@ -20,7 +19,7 @@ func InboundHandler(c *gin.Context) {
 	}
 
 	switch reqBody.Message.Type {
-	case "assistant-request":
+	case types.AssistantRequest:
 		name := "Paula"
 		modelName := "gpt-3.5-turbo"
 		temp := 0.7

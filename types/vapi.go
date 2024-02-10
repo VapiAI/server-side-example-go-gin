@@ -2,8 +2,6 @@ package types
 
 import (
 	"time"
-
-	openai "github.com/sashabaranov/go-openai"
 )
 
 type Model struct {
@@ -117,7 +115,6 @@ type ConversationMessage struct {
 	EndTime          *int64  `json:"endTime,omitempty"`
 	SecondsFromStart int     `json:"secondsFromStart"`
 }
-
 type BaseVapiPayload struct {
 	Type VapiWebhookEnum `json:"type"`
 	Call VapiCall        `json:"call"`
@@ -125,25 +122,38 @@ type BaseVapiPayload struct {
 
 type AssistantRequestPayload struct {
 	BaseVapiPayload
-	Type VapiWebhookEnum `json:"type"`
+}
+
+func (p AssistantRequestPayload) GetCallType() VapiWebhookEnum {
+	return p.Type
 }
 
 type StatusUpdatePayload struct {
 	BaseVapiPayload
-	Type     VapiWebhookEnum                `json:"type"`
-	Status   VapiCallStatus                 `json:"status"`
-	Messages []openai.ChatCompletionMessage `json:"messages,omitempty"` // Replace with the equivalent Go struct
+	Status   VapiCallStatus        `json:"status"`
+	Messages []ConversationMessage `json:"messages,omitempty"`
+}
+
+func (p StatusUpdatePayload) GetCallType() VapiWebhookEnum {
+	return p.Type
 }
 
 type FunctionCallPayload struct {
 	BaseVapiPayload
-	Type         VapiWebhookEnum `json:"type"`
-	FunctionCall Function        `json:"functionCall"` // Replace with the equivalent Go struct
+	FunctionCall OpenAIFunctionCall `json:"functionCall"`
+}
+
+type OpenAIFunctionCall struct {
+	Name       string      `json:"name"`
+	Parameters interface{} `json:"parameters"`
+}
+
+func (p FunctionCallPayload) GetCallType() VapiWebhookEnum {
+	return p.Type
 }
 
 type EndOfCallReportPayload struct {
 	BaseVapiPayload
-	Type         VapiWebhookEnum       `json:"type"`
 	EndedReason  string                `json:"endedReason"`
 	Transcript   string                `json:"transcript"`
 	Messages     []ConversationMessage `json:"messages"`
@@ -151,29 +161,44 @@ type EndOfCallReportPayload struct {
 	RecordingUrl *string               `json:"recordingUrl,omitempty"`
 }
 
+func (p EndOfCallReportPayload) GetCallType() VapiWebhookEnum {
+	return p.Type
+}
+
 type HangPayload struct {
 	BaseVapiPayload
-	Type VapiWebhookEnum `json:"type"`
+}
+
+func (p HangPayload) GetCallType() VapiWebhookEnum {
+	return p.Type
 }
 
 type SpeechUpdatePayload struct {
 	BaseVapiPayload
-	Type   VapiWebhookEnum `json:"type"`
-	Status string          `json:"status"`
-	Role   string          `json:"role"`
+	Status string `json:"status"`
+	Role   string `json:"role"`
+}
+
+func (p SpeechUpdatePayload) GetCallType() VapiWebhookEnum {
+	return p.Type
 }
 
 type TranscriptPayload struct {
-	Type           VapiWebhookEnum `json:"type"`
-	Role           string          `json:"role"`
-	TranscriptType string          `json:"transcriptType"`
-	Transcript     string          `json:"transcript"`
+	BaseVapiPayload
+	Role           string `json:"role"`
+	TranscriptType string `json:"transcriptType"`
+	Transcript     string `json:"transcript"`
+}
+
+func (p TranscriptPayload) GetCallType() VapiWebhookEnum {
+	return p.Type
 }
 
 type VapiCall struct{} // Define the struct fields based on the TypeScript definition
 
-type VapiPayload interface{} // Use an empty interface to represent a union type
-
+type VapiPayload interface {
+	GetCallType() VapiWebhookEnum
+}
 type FunctionCallMessageResponse struct {
 	Result string `json:"result"`
 	// Add any other fields that might be part of the union type
