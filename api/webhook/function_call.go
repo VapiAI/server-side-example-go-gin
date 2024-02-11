@@ -38,13 +38,13 @@ func FunctionCallHandler(c *gin.Context, payload *types.FunctionCallPayload) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"result": result})
+		c.JSON(http.StatusCreated, gin.H{"result": result})
 
 	case "getCharacterInspiration":
 		var params functions.GetCharacterInspirationParams
 		mapstructure.Decode(parameters, &params)
 		result := functions.GetCharacterInspiration(params)
-		c.JSON(http.StatusOK, gin.H{"result": result})
+		c.JSON(http.StatusCreated, gin.H{"result": result.Result, "forwardToClientEnabled": result.ForwardToClientEnabled})
 
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid function name."})

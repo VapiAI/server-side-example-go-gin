@@ -49,5 +49,5 @@ func AssistantRequestHandler(c *gin.Context, payload *types.AssistantRequestPayl
 		},
 		FirstMessage: &firstMessage,
 	}
-	c.JSON(http.StatusOK, gin.H{"assistant": assistant})
+	c.JSON(http.StatusCreated, gin.H{"assistant": assistant})
 }

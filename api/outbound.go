@@ -16,6 +16,16 @@ type RequestBody struct {
 	CustomerNumber string `json:"customerNumber"`
 }
 
+type Customer struct {
+	Number string `json:"number"`
+}
+
+type ModifiedRequestBody struct {
+	PhoneNumberId string   `json:"phoneNumberId"`
+	AssistantId   string   `json:"assistantId"`
+	Customer      Customer `json:"customer"`
+}
+
 func OutboundHandler(c *gin.Context) {
 	envConfig := config.LoadEnvConfig()
 	var requestBody RequestBody
@@ -24,12 +34,21 @@ func OutboundHandler(c *gin.Context) {
 		return
 	}
 
+	modifiedRequestBody := ModifiedRequestBody{
+		PhoneNumberId: requestBody.PhoneNumberId,
+		AssistantId:   requestBody.AssistantId,
+		Customer: Customer{
+			Number: requestBody.CustomerNumber,
+		},
+	}
+
 	fmt.Printf(":Request Body: \n")
 
-	requestBodyBytes, _ := json.Marshal(requestBody)
+	requestBodyBytes, _ := json.Marshal(modifiedRequestBody)
 
 	fmt.Println(requestBody)
 
+	fmt.Printf("Request Body Buffer: %s\n", string(requestBodyBytes))
 	client := &http.Client{}
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/call/phone", envConfig.Vapi.BaseUrl), bytes.NewBuffer(requestBodyBytes))
 
@@ -38,9 +57,9 @@ func OutboundHandler(c *gin.Context) {
 
 	resp, _ := client.Do(req)
 	defer resp.Body.Close()
-	fmt.Println("requestBody end", resp.StatusCode, http.StatusOK)
+	fmt.Println("requestBody end", resp.StatusCode, http.StatusCreated)
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusCreated {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("HTTP error! status: %d", resp.StatusCode)})
 		return
 	}
@@ -48,5 +67,5 @@ func OutboundHandler(c *gin.Context) {
 	var data interface{}
 	json.NewDecoder(resp.Body).Decode(&data)
 
-	c.JSON(http.StatusOK, data)
+	c.JSON(http.StatusCreated, data)
 }

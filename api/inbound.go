@@ -61,9 +61,9 @@ func InboundHandler(c *gin.Context) {
 			},
 			FirstMessage: &firstMessage,
 		}
-		c.JSON(http.StatusOK, gin.H{"assistant": assistant})
+		c.JSON(http.StatusCreated, gin.H{"assistant": assistant})
 	default:
 		// Ignoring invalid message type without sending an error
-		c.JSON(http.StatusOK, gin.H{})
+		c.JSON(http.StatusCreated, gin.H{})
 	}
 }

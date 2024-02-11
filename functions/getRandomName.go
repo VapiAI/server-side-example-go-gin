@@ -56,7 +56,7 @@ func GetRandomName(params NameParams) (string, error) {
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode != http.StatusOK {
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		return "", fmt.Errorf("HTTP error! status: %d", response.StatusCode)
 	}
 

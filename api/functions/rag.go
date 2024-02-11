@@ -49,7 +49,7 @@ func RagHandler(c *gin.Context) {
 			var params functions.GetCharacterInspirationParams
 			mapstructure.Decode(parameters, &params)
 			result := functions.GetCharacterInspiration(params)
-			c.JSON(http.StatusOK, gin.H{"result": result})
+			c.JSON(http.StatusCreated, gin.H{"result": result.Result, "forwardToClientEnabled": result.ForwardToClientEnabled})
 		}
 	default:
 	}
